@@ -4,7 +4,7 @@ from common.models import CommonModel
 
 class Board(CommonModel):
     class CategoryTypeChoices(models.TextChoices):
-        자게 = ("freeboard", "자게")
+        자게 = ("free", "자게")
         후기 = ("after", "후기")
         양도 = ("trade", "양도")
 
@@ -18,8 +18,8 @@ class Board(CommonModel):
     )
     category = models.CharField(max_length=12, choices=CategoryTypeChoices.choices)
     views = models.PositiveIntegerField(default=0)
-    likes_num = models.ManyToManyField(User, related_name="likes_num")
-    reviews_num = models.ManyToManyField(Review, related_name="reviews_num", blank=True)
+    likes_num = models.ManyToManyField(User, related_name="likes_num", default=0)
+    reviews_num = models.ManyToManyField(Review, related_name="reviews_num", default=0)
 
     def __str__(self):
         return self.title
