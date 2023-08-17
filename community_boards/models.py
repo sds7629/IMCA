@@ -17,3 +17,16 @@ class Board(CommonModel):
         "users.User", on_delete=models.CASCADE, related_name="boards"
     )
     category = models.CharField(max_length=12, choices=CategoryTypeChoices.choices)
+    views = models.PositiveIntegerField(default=0)
+    likes_num = models.ManyToManyField(User, related_name="likes_num")
+    reviews_num = models.ManyToManyField(Review, related_name="reviews_num", blank=True)
+
+    def __str__(self):
+        return self.title
+
+    def get_review_num(self):
+        reviews_count = self.reviews_num.count()
+        bigreviews_count = 0
+        for review in self.reviews_num.all():
+            bigreviews_count += review.bigreviews_num.count()
+        return reviews_count + bigreviews_count
