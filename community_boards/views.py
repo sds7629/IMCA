@@ -3,8 +3,9 @@ from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Board
-from .serializers import BoardSerializer
+from .serializers import BoardSerializer, PaginationSerializer
 from rest_framework.status import (
+    HTTP_200_OK,
     HTTP_201_CREATED,
     HTTP_204_NO_CONTENT,
     HTTP_400_BAD_REQUEST,
@@ -16,57 +17,95 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 
 
+class BoardPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = "page_size"
+    max_page_size = 100
+
+
 class CustomPagination(PageNumberPagination):
     page_size = 2
     page_size_query_param = "page_size"
     max_page_size = 100
 
 
-class Boards(APIView):
-    pagination_class = CustomPagination
+class CategoryBoards(APIView):
+    @extend_schema(
+        tags=["게시판 게시글 API"],
+        summary="카테고리별 게시글 리스트를 가져오고, 페이지네이션을 처리함.",
+        description="각 카테고리별 게시판의 게시글을 가져오고, 페이지네이션을 처리한다.",
+        responses={200: BoardSerializer(many=True)},
+    )
+    def get(self, request, category):
+        # Validate the category input
+        if category not in [
+            choice[0] for choice in Board.CategoryType.choices
+        ]:  # dict에서 key만 가져오기
+            return Response({"error": "Invalid category"}, status=HTTP_400_BAD_REQUEST)
+
+        boards = Board.objects.filter(category=category)
+        total_boards_count = boards.count()  # 카테고리별 총 게시물 수 계산
+
+        paginator = CustomPagination()
+        page = paginator.paginate_queryset(boards, request)
+        serializer = BoardSerializer(page, many=True)
+
+        # Create a PaginationSerializer instance with the required data
+        pagination_data = {
+            "count": total_boards_count,
+            # "count": paginator.page.paginator.count,
+            "next": paginator.get_next_link(),
+            "previous": paginator.get_previous_link(),
+            "results": serializer.data,
+        }
+
+        # 직접 생성한 pagination_data를 Response에 전달
+        return Response(pagination_data)
 
     @extend_schema(
         tags=["게시판 게시글 API"],
-        summary="게시글 리스트를 가져옴",
-        description="게시판의 모든 게시글을 가져온다.",
+        summary="게시글을 만든다.",
+        description="새로운 게시글을 만든다.",
+        request=BoardSerializer,
+        responses={201: BoardSerializer()},
+    )
+    def post(self, request):
+        try:
+            serializer = BoardSerializer(data=request.data)
+            if serializer.is_valid():
+                content = serializer.save(author=request.user)
+                return Response(BoardSerializer(content).data, status=HTTP_201_CREATED)
+            else:
+                return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"error": str(e)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class Boards(APIView):
+    # pagination_class = CustomPagination
+
+    @extend_schema(
+        tags=["게시판 게시글 API"],
+        summary="게시글 리스트를 가져옴, 페이지네이션 처리됨.",
+        description="게시판의 모든 게시글을 가져오고, 페이지네이션이 처리된다",
         responses={200: BoardSerializer(many=True)},
     )
     def get(self, request):
         boards = Board.objects.all()
-        paginator = self.pagination_class()
+        paginator = BoardPagination()
         page = paginator.paginate_queryset(boards, request)
-
         serializer = BoardSerializer(page, many=True)
-        return paginator.get_paginated_response(serializer.data)
-        # page = self.pagination_class.paginate_queryset(
-        #     boards, request, view=self
-        # )  # request와 view 인스턴스 전달
 
-        # if page is not None:
-        #     serializer = BoardSerializer(page, many=True)
-        #     return self.pagination_class.get_paginated_response(serializer.data)
+        # Create a PaginationSerializer instance with the required data
+        pagination_data = {
+            "count": paginator.page.paginator.count,
+            "next": paginator.get_next_link(),
+            "previous": paginator.get_previous_link(),
+            "results": serializer.data,
+        }
 
-        # serializer = BoardSerializer(boards, many=True)
-        # res = serializer.data
-
-        # current_url = request.build_absolute_uri()
-
-        # next_page = page.number + 1 if page.has_next() else None
-        # prev_page = page.number - 1 if page.has_previous() else None
-        # next_url = None
-        # prev_url = None
-        # if next_page:
-        #     next_url = f"{current_url}?page={next_page}"
-        # if prev_page:
-        #     prev_url = f"{current_url}?page={prev_page}"
-
-        # data = {
-        #     "count": boards.count(),
-        #     "next": next_url,
-        #     "previous": prev_url,
-        #     "results": res,
-        # }
-        # return Response(data)
+        # 직접 생성한 pagination_data를 Response에 전달
+        return Response(pagination_data)
 
     @extend_schema(
         tags=["게시판 게시글 API"],
@@ -99,6 +138,15 @@ class BoardDetail(APIView):
         board.views += 1  # 조회수 증가
         board.save()
         serializer = BoardSerializer(board)
+
+        # # 리뷰와 대댓글의 총 댓글 수 계산
+        # reviews_count = board.reviews.count()  # 리뷰 수 계산
+        # bigreviews_count = board.bigreviews.count()  # 대댓글 수 계산
+        # total_comments_count = reviews_count + bigreviews_count
+
+        # # BoardSerializer의 응답 데이터에 총 댓글 수를 추가
+        # serializer.data["reviews_count"] = total_comments_count
+
         return Response(serializer.data)
 
     @extend_schema(
@@ -177,3 +225,20 @@ class BoardLike(APIView):
         """
         클라이언트가 게시글에 좋아요를 누를 때, 해당 게시글의 좋아요 상태를 토글하고, 사용자를 원래 페이지로 리다이렉트하는 기능을 구현한 것
         """
+
+
+class CategoryBoardsArrange(APIView):
+    @extend_schema(
+        tags=["게시판 게시글 API"],
+        summary="카테고리별 게시글을 최신순으로 5개 가져옴.",
+        description="카테고리별 게시판의 게시글을 최신순으로 5개 가져온다.",
+        responses={200: BoardSerializer(many=True)},
+    )
+    def get(self, request, category):
+        if category not in [choice[0] for choice in Board.CategoryType.choices]:
+            return Response({"error": "Invalid category"}, status=HTTP_400_BAD_REQUEST)
+
+        boards = Board.objects.filter(category=category).order_by("-created_at")[:2]
+
+        serializer = BoardSerializer(boards, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
