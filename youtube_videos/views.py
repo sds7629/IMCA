@@ -56,12 +56,12 @@ class Youtube_VideoDetail(APIView):
         responses={200: Youtube_VideoSerializer()},
     )
     def get(self, request, pk):
-        youtube_video = self.get_object(pk)
         # 쿠키에서 이미 조회한 비디오의 목록을 가져옴
         youtube_video = self.get_object(pk)
         viewed_videos = request.COOKIES.get("viewed_videos", "").split(",")
         if str(pk) not in viewed_videos:
             Youtube_Video.objects.filter(pk=pk).update(views_count=F("views_count") + 1)
+            # 데이터베이스에는 +1이 되었지만, serializer.data에는 반영이 안되어 있음
             viewed_videos.append(str(pk))
         # youtube_video.views_count += 1  # Increase the views_count
         # youtube_video.save()  # Save the changes to the database
@@ -71,21 +71,26 @@ class Youtube_VideoDetail(APIView):
         serializer = Youtube_VideoSerializer(youtube_video)
         response = Response(serializer.data)
 
-        # 쿠키 설정
-        expires = datetime.strftime(
-            datetime.utcnow() + timedelta(days=30), "%a, %d-%b-%Y %H:%M:%S GMT"
-        )
-        response.set_cookie(
-            "viewed_videos",
-            ",".join(viewed_videos),
-            expires=expires,
-            httponly=True,
-            secure=True,
-            samesite="Lax",
-        )
+        # # 쿠키 설정
+        # expires = datetime.strftime(
+        #     datetime.utcnow() + timedelta(days=30), "%a, %d-%b-%Y %H:%M:%S GMT"
+        # )
+        # response.set_cookie(
+        #     "viewed_videos",
+        #     ",".join(viewed_videos),
+        #     expires=expires,
+        #     httponly=True,
+        #     secure=True,
+        #     samesite="Lax",
+        # )
 
-        return response
-        # return Response(serializer.data)
+                return response
+            else:
+                return Response(data)
+        except Youtube_Video.DoesNotExist:
+            return Response({"error": "Board not found"}, status=HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=HTTP_500_INTERNAL_SERVER_ERROR)
 
     @extend_schema(
         tags=["youtube_videos 게시글 API"],
