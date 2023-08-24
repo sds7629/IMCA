@@ -1,0 +1,41 @@
+version: "3"
+
+services:
+  imca_back:
+    container_name: imca_back
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - imcastatic:/app/static
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod  # 배포설정으로 환경변수 변경
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    # networks:
+    #   - local-net
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    volumes:
+      - imcamedia:/backend/.media_root  # 미디어 파일 경로
+      - imcastatic:/app/static  # 스태틱 파일 경로
+    ports:
+      - "80:80"
+    depends_on:
+      - imca_back
+#     networks:
+#       - local-net
+
+# networks:
+#   local-net:
+#     driver: bridge
+
+volumes:
+  imcastatic:
+    external: true
+  imcamedia:
+    external: true
