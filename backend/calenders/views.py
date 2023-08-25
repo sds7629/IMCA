@@ -58,7 +58,7 @@ class Calendarinfo(APIView):
 
 class CalendarMenu(APIView):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         date = request.GET["date"]
