@@ -1,6 +1,6 @@
 from .base import *
 
-DEBUG = True
+DEBUG = False
 
 WSGI_APPLICATION = "config.wsgi.application"
 
