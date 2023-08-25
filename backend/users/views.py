@@ -1,7 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import ParseError, NotFound
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import User
@@ -138,3 +140,43 @@ class UserAuth(APIView):
         res.delete_cookie("refresh")
         logout(request)
         return res
+
+
+class UserInfo(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        queryset = request.user
+        return Response(serializers.UserInfoSerializer(queryset).data)
+
+    def put(self, request):
+        queryset = request.user
+        serializer = serializers.UserInfoSerializer(
+            queryset,
+            data=request.data,
+            partial=True,
+        )
+        if serializer.is_valid():
+            user = serializer.save()
+            serializer = serializers.UserInfoSerializer(user)
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors)
+
+
+class ChangePassword(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        user = request.user
+        old_password = request.data.get("old_password")
+        new_password = request.data.get("new_password")
+        if not old_password or not new_password:
+            raise ParseError
+        if user.check_password(old_password):
+            user.set_password(new_password)
+            user.save()
+            return Response(status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
