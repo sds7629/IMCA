@@ -143,13 +143,27 @@ class UserAuth(APIView):
 
 
 class UserInfo(APIView):
+    """
+    마이페이지
+    """
+
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        tags=["마이페이지"],
+        description="마이페이지",
+        responses=serializers.UserInfoSerializer,
+    )
     def get(self, request):
         queryset = request.user
         return Response(serializers.UserInfoSerializer(queryset).data)
 
+    @extend_schema(
+        tags=["마이페이지"],
+        description="마이페이지",
+        responses=serializers.UserInfoSerializer,
+    )
     def put(self, request):
         queryset = request.user
         serializer = serializers.UserInfoSerializer(
@@ -166,17 +180,29 @@ class UserInfo(APIView):
 
 
 class ChangePassword(APIView):
+    """
+    비밀번호 변경
+    """
+
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        tags=["패스워드 변경"],
+        description="패스워드 변경",
+    )
     def put(self, request):
         user = request.user
-        old_password = request.data.get("old_password")
+        # old_password = request.data.get("old_password")
         new_password = request.data.get("new_password")
-        if not old_password or not new_password:
+        if not new_password:
             raise ParseError
-        if user.check_password(old_password):
+        if not user.check_password(new_password):
             user.set_password(new_password)
             user.save()
-            return Response(status=status.HTTP_200_OK)
+            return Response({"message": "비밀번호 변경 완료"}, status=status.HTTP_200_OK)
         else:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "이전 비밀번호와 다른 비밀번호를 입력해주세요"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
