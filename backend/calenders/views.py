@@ -12,8 +12,8 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExampl
 
 
 class Calendarinfo(APIView):
-    # authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTAuthentication]
+    # permission_classes = [IsAuthenticated]
 
     @extend_schema(
         tags=["마이 캘린더 일정"],
@@ -58,7 +58,7 @@ class Calendarinfo(APIView):
 
 class CalendarMenu(APIView):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         date = request.GET["date"]
@@ -69,7 +69,7 @@ class CalendarMenu(APIView):
 
 class CalendarDetail(APIView):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     @extend_schema(
         tags=["디테일 일정"],
@@ -106,7 +106,7 @@ class CalendarDetail(APIView):
 
 class Memoapi(APIView):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get_cal(self, pk):
         try:
@@ -155,7 +155,7 @@ class Memoapi(APIView):
 
 class MemoDetail(APIView):
     authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get_cal(self, pk):
         try:
