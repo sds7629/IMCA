@@ -58,18 +58,11 @@ class Calendarinfo(APIView):
 
 class CalendarMenu(APIView):
     authentication_classes = [JWTAuthentication]
-
     # permission_classes = [IsAuthenticated]
-    def get_cal(self, date):
-        cal = Calendar.objects.filter(start_date=date)
-        if not cal:
-            cal = Calendar.objects.filter(selected_date=date)
-            return cal
-        return cal
 
     def get(self, request):
         date = request.GET["date"]
-        cal = self.get_cal(date).filter(owner=request.user)
+        cal = Calendar.objects.filter(selected_date=date).filter(owner=request.user)
         # cal = Calendar.objects.filter(owner=request.user).filter(selected_date=date)
         serializer = serializers.DetailInfoSerializer(cal, many=True)
         return Response(serializer.data)
