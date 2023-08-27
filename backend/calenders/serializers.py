@@ -8,13 +8,12 @@ class MemoSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class SemiInfoSerializer(serializers.ModelSerializer):
+class DotInfoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Calendar
         fields = (
             "pk",
-            "start_date",
-            "end_date",
+            "selected_date",
         )
 
 

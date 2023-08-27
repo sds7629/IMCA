@@ -22,7 +22,7 @@ class Calendarinfo(APIView):
     )
     def get(self, request):
         calendar = Calendar.objects.filter(owner=request.user)
-        serializer = serializers.SemiInfoSerializer(calendar, many=True)
+        serializer = serializers.DotInfoSerializer(calendar, many=True)
         return Response(serializer.data)
 
     @extend_schema(
@@ -58,7 +58,7 @@ class Calendarinfo(APIView):
 
 class CalendarMenu(APIView):
     authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         date = request.GET["date"]
@@ -68,7 +68,7 @@ class CalendarMenu(APIView):
 
 
 class CalendarDetail(APIView):
-    # authentication_classes = [JWTAuthentication]
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
