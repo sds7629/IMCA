@@ -34,7 +34,7 @@ urlpatterns = [
     path("api/v1/bigreview/", include("bigreviews.urls")),
     path("api/v1/calendar/", include("calenders.urls")),
     path("api/v1/report/", include("reports.urls")),
-    path("API/", include("apis.urls")),
+    path("api/v1/apis", include("apis.urls")),
     path("boxoffice/", include("boxapi.urls")),
 ]
 
