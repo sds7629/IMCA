@@ -5,7 +5,7 @@ from .models import Calendar, Memo
 class MemoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Memo
-        fields = "__all__"
+        exclude = ("user",)
 
 
 class DotInfoSerializer(serializers.ModelSerializer):
