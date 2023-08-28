@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ["*"]
 THIRDPARTY_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
+    "rest_framework.authtoken",
     "users.apps.UsersConfig",
     "calenders.apps.CalendersConfig",
     "common.apps.CommonConfig",
@@ -52,6 +53,12 @@ THIRDPARTY_APPS = [
     "django_apscheduler",
     "xmltodict",
     # "sslserver",
+    "dj_rest_auth",
+    "dj_rest_auth.registration",
+    "allauth",
+    "allauth.account",
+    "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
 ]
 
 DEFAULT_APPS = [
@@ -61,6 +68,7 @@ DEFAULT_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
 ]
 
 INSTALLED_APPS = DEFAULT_APPS + THIRDPARTY_APPS
@@ -82,7 +90,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.TokenAuthentication",
-        "rest_framework.authentication.SessionAuthentication",
+        # "rest_framework.authentication.SessionAuthentication",
     ),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
@@ -109,6 +117,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "django.template.context_processors.request",
             ],
         },
     },
@@ -190,3 +199,24 @@ CSRF_TRUSTED_ORIGINS = (
 SESSION_COOKIE_AGE = 43200
 # 5 # 5초
 # 43200 # 12시간
+
+
+### Oauth
+SITE_ID = 1
+
+REST_USE_JWT = True
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # username 필드 사용 x
+ACCOUNT_EMAIL_REQUIRED = True  # email 필드 사용 o
+ACCOUNT_USERNAME_REQUIRED = False  # username 필드 사용 x
+ACCOUNT_AUTHENTICATION_METHOD = "email"
+
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "SCOPE": [
+            "profile",
+            "email",
+        ],
+        "AUTH_PARAMS": {"access_type": "online"},
+    }
+}

@@ -27,6 +27,7 @@ from drf_spectacular.views import (
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/v1/users/", include("allauth.urls")),
     path("api/v1/users/", include("users.urls")),
     path("api/v1/youtube_video/", include("youtube_videos.urls")),
     path("api/v1/community_board/", include("community_boards.urls")),
@@ -40,6 +41,7 @@ urlpatterns = [
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
 
 if settings.DEBUG:
     urlpatterns += [

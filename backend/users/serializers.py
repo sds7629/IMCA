@@ -7,6 +7,8 @@ class RegisterSerializer(serializers.ModelSerializer):
     유저 회원가입 시리얼라이저
     """
 
+    profileImg = serializers.ImageField(use_url=True, required=False)
+
     class Meta:
         model = User
         fields = "__all__"
@@ -16,15 +18,17 @@ class RegisterSerializer(serializers.ModelSerializer):
         email = validated_data.get("email")
         password = validated_data.get("password")
         nickname = validated_data.get("nickname")
-        profileImg = validated_data.get("profileImg")
         gender = validated_data.get("gender")
         name = validated_data.get("name")
+
+        if "profileImg" not in validated_data:
+            validated_data["profileImg"] = "profileImg/default.png"
 
         user = User(
             login_id=login_id,
             email=email,
             nickname=nickname,
-            profileImg=profileImg,
+            profileImg=validated_data["profileImg"],
             gender=gender,
             name=name,
         )

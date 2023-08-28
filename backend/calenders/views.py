@@ -13,7 +13,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExampl
 
 class Calendarinfo(APIView):
     authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
         tags=["마이 캘린더 일정"],
@@ -58,19 +58,18 @@ class Calendarinfo(APIView):
 
 class CalendarMenu(APIView):
     authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         date = request.GET["date"]
         cal = Calendar.objects.filter(selected_date=date).filter(owner=request.user)
-        # cal = Calendar.objects.filter(owner=request.user).filter(selected_date=date)
         serializer = serializers.MenuSerializer(cal, many=True)
         return Response(serializer.data)
 
 
 class CalendarDetail(APIView):
     authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
         tags=["디테일 일정"],
@@ -85,12 +84,12 @@ class CalendarDetail(APIView):
             ),
         ],
     )
-    def get(self, request, pk):
-        calendar = Calendar.objects.get(pk=pk)
-        if calendar.owner != request.user:
-            raise PermissionError
-        serializer = serializers.DetailInfoSerializer(calendar)
-        return Response(serializer.data)
+    # def get(self, request, pk):
+    #     calendar = Calendar.objects.get(pk=pk)
+    #     if calendar.owner != request.user:
+    #         raise PermissionError
+    #     serializer = serializers.DetailInfoSerializer(calendar)
+    #     return Response(serializer.data)
 
     @extend_schema(
         tags=["디테일 일정"],
@@ -107,7 +106,7 @@ class CalendarDetail(APIView):
 
 class Memoapi(APIView):
     authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_cal(self, pk):
         try:
@@ -156,7 +155,7 @@ class Memoapi(APIView):
 
 class MemoDetail(APIView):
     authentication_classes = [JWTAuthentication]
-    # permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_cal(self, pk):
         try:
