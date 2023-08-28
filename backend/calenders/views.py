@@ -64,7 +64,7 @@ class CalendarMenu(APIView):
         date = request.GET["date"]
         cal = Calendar.objects.filter(selected_date=date).filter(owner=request.user)
         # cal = Calendar.objects.filter(owner=request.user).filter(selected_date=date)
-        serializer = serializers.DetailInfoSerializer(cal, many=True)
+        serializer = serializers.MenuSerializer(cal, many=True)
         return Response(serializer.data)
 
 
