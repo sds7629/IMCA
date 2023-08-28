@@ -24,8 +24,7 @@ class SavePublicAPI(APIView):
 
     def get(self, request):
         page = request.GET["page"]
-        print(page)
-        list = FestivalModel.objects.all()
+        list = FestivalModel.objects.all().order_by("-start_date")
         paginator = Paginator(list, 20)
         try:
             page_obj = paginator.page(page)

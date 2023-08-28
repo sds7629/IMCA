@@ -24,7 +24,7 @@ class DetailInfoSerializer(serializers.ModelSerializer):
 
 
 class MenuSerializer(serializers.ModelSerializer):
-    memo = MemoSerializer()
+    memo = MemoSerializer(read_only=True)
 
     class Meta:
         model = Calendar
