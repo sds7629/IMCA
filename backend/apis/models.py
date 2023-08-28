@@ -6,5 +6,5 @@ class FestivalModel(models.Model):
     start_date = models.DateField(null=False, blank=False)
     end_date = models.DateField(null=False, blank=False)
     poster = models.URLField(null=True, blank=True)
-    place = models.CharField(max_length=15)
+    place = models.CharField(max_length=50)
     name = models.CharField(max_length=60)
