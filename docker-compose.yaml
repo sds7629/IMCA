@@ -8,6 +8,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     volumes:
+      - imcamedia:/app/media
       - imcastatic:/app/static
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.prod  # 배포설정으로 환경변수 변경
