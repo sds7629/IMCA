@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ["*"]
 THIRDPARTY_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
+    "rest_framework_simplejwt.token_blacklist",
     "rest_framework.authtoken",
     "users.apps.UsersConfig",
     "calenders.apps.CalendersConfig",
