@@ -3,7 +3,7 @@ from common.models import CommonModel
 
 
 class Bigreview(CommonModel):
-    bigreview_writer = models.ForeignKey(  # 대댓글 작성자
+    bigreview_writer = models.ForeignKey(  # 대댓글 작성자.
         "users.User",
         on_delete=models.CASCADE,
         related_name="bigreviews_written",  # 작성자 입장에서 해당 작성자가 작성한 대댓글들을 가져올 때 사용할 이름
