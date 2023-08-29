@@ -13,9 +13,16 @@ from rest_framework.status import (
     HTTP_404_NOT_FOUND,
     HTTP_500_INTERNAL_SERVER_ERROR,
 )
+from django.shortcuts import get_object_or_404
+from rest_framework import status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
-class CategorReviewBigreviewList(APIView):
+class UnauthenticatedCategoryReviewBigreviewList(APIView):
+    authentication_classes = []  # 토큰 인증 비활성화
+    permission_classes = []  # 인증 없이 접근 가능
+
     @extend_schema(
         tags=["댓글의 댓글"],
         summary="카테고리별 대댓글 목록을 가져옴",
@@ -33,6 +40,11 @@ class CategorReviewBigreviewList(APIView):
         serializer = BigreviewSerializer(bigreviews, many=True)
         return Response(serializer.data)
 
+
+class CategoryReviewBigreviewList(APIView):
+    authentication_classes = [JWTAuthentication]  # JWT 토큰 인증 사용
+    permission_classes = [IsAuthenticated]  # 인증된 사용자만 접근 허용
+
     @extend_schema(
         tags=["댓글의 댓글"],
         summary="카테고리별 대댓글 작성",
@@ -47,11 +59,12 @@ class CategorReviewBigreviewList(APIView):
 
         # Create a new big review for the specified parent review in the specified category
         data = request.data
-        data["parent_review"] = review_id
+        data["bigreview_writer"] = request.user.id
+        data["bigreview_review"] = review_id
 
         serializer = BigreviewSerializer(data=data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save()  # bigreview_writer=request.user, bigreview_review=review_id
             return Response(serializer.data, status=HTTP_201_CREATED)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
@@ -91,7 +104,7 @@ class CategorReviewBigreviewList(APIView):
         tags=["댓글의 댓글"],
         summary="카테고리별 대댓글 삭제",
         description="카테고리별 대댓글을 삭제한다.",
-        responses={204: "No Content"},
+        responses={204: status.HTTP_204_NO_CONTENT},
     )
     def delete(self, request, category, review_id):
         # Validate the category input
@@ -134,25 +147,45 @@ class CategoryBigreviewList(APIView):
         request=BigreviewSerializer,
         responses={201: BigreviewSerializer()},
     )
-    def post(self, request, category):
+    def post(self, request, category, review_id):
         # Validate the category input
         if category not in [choice[0] for choice in Board.CategoryType.choices]:
             return Response({"error": "Invalid category"}, status=HTTP_400_BAD_REQUEST)
 
-        # Create a new big review for parent reviews in the specified category
-        parent_reviews = Review.objects.filter(board__category=category)
-        parent_review_id = parent_reviews.values_list("id", flat=True)
+        try:
+            parent_review = Review.objects.get(id=review_id)
+        except Review.DoesNotExist:
+            return Response(
+                {"error": "Parent review not found"}, status=HTTP_400_BAD_REQUEST
+            )
 
-        data = request.data
-        data["parent_review"] = parent_review_id[
-            0
-        ]  # You might need to adjust this based on your logic
-
-        serializer = BigreviewSerializer(data=data)
+        serializer = BigreviewSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(
+                bigreview_writer=request.user, bigreview_review=parent_review
+            )
             return Response(serializer.data, status=HTTP_201_CREATED)
         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+    # def post(self, request, category):
+    #     # Validate the category input
+    #     if category not in [choice[0] for choice in Board.CategoryType.choices]:
+    #         return Response({"error": "Invalid category"}, status=HTTP_400_BAD_REQUEST)
+
+    #     # # Create a new big review for parent reviews in the specified category
+    #     # parent_review = Review.objects.filter(board__category=category)
+    #     # parent_review_id = parent_review.values_list("id", flat=True)
+
+    #     # # data = request.data
+    #     # # data["parent_review"] = parent_review_id[
+    #     # #     0
+    #     # # ]  # You might need to adjust this based on your logic
+
+    #     serializer = BigreviewSerializer(request.data)
+    #     if serializer.is_valid():
+    #         serializer.save(bigreview_writer=request.user)
+    #         return Response(serializer.data, status=HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
 
     @extend_schema(
         tags=["댓글의 댓글"],
@@ -192,7 +225,7 @@ class CategoryBigreviewList(APIView):
         tags=["댓글의 댓글"],
         summary="카테고리별 대댓글 삭제",
         description="카테고리별 대댓글을 삭제한다.",
-        responses={204: "No Content"},
+        responses={204: status.HTTP_204_NO_CONTENT},
     )
     def delete(self, request, category):
         # Validate the category input
@@ -264,7 +297,7 @@ class CategoryBigreviewList(APIView):
 #         tags=["댓글의 댓글"],
 #         summary="대댓글 삭제",
 #         description="대댓글을 삭제한다.",
-#         responses={204: "No Content"},
+#         responses={204: status.HTTP_204_NO_CONTENT},
 #     )
 #     def delete(self, request, pk):
 #         bigreview = self.get_object(pk)
@@ -361,7 +394,7 @@ class CategoryBigreviewList(APIView):
 #         tags=["댓글의 댓글"],
 #         summary="대댓글 삭제",
 #         description="대댓글을 삭제한다.",
-#         responses={204: "No Content"},
+#         responses={204: status.HTTP_204_NO_CONTENT},
 #     )
 #     def delete(self, request, pk):
 #         bigreview = self.get_object(pk)
