@@ -82,7 +82,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     nickname = models.CharField(max_length=10, unique=True, null=False, blank=False)
     login_id = models.CharField(max_length=30, unique=True, null=False, blank=False)
     profileImg = models.ImageField(
-        upload_to="profileImg", default="media/profileImg/default.png"
+        upload_to="profileImg", default="media/profileImg/default_profile.png"
     )
     email = models.CharField(max_length=30, unique=True, null=False, blank=False)
     gender = models.CharField(max_length=6, choices=GenderChoices.choices)
