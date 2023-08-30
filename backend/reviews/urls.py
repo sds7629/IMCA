@@ -13,6 +13,8 @@ urlpatterns = [
         views.UnauthenticatedCategoryReviewAndBigreviewList.as_view(),
     ),
 ]
+##
+##
 # path(
 #     "",
 #     views.Reviews.as_view(),
