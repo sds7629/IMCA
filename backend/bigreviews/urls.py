@@ -3,16 +3,6 @@ from . import views
 
 urlpatterns = [
     # path(
-    #     "category/<str:category>/<int:review_id>/get/",
-    #     views.UnauthenticatedCategoryReviewBigreviewList.as_view(),
-    # ),
-    # path(
-    #     "category/<str:category>/<int:review_id>/",
-    #     views.CategoryReviewBigreviewList.as_view(),
-    # ),
-    ##
-    ##
-    # path(
     #     "",
     #     views.Bigreviews.as_view(),
     #     name="bigreviews",
@@ -21,5 +11,13 @@ urlpatterns = [
     #     "category/<str:category>/",
     #     views.CategoryBigreviewList.as_view(),
     #     name="category-bigreview-list",
+    # ),
+    # path(
+    #     "category/<str:category>/<int:review_id>/get/",
+    #     views.UnauthenticatedCategoryReviewBigreviewList.as_view(),
+    # ),
+    # path(
+    #     "category/<str:category>/<int:review_id>/",
+    #     views.CategoryReviewBigreviewList.as_view(),
     # ),
 ]
