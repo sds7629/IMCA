@@ -24,24 +24,24 @@ services:
     volumes:
       - imcamedia:/app/media  # 미디어 파일 경로
       - imcastatic:/app/static  # 스태틱 파일 경로
-      - ./nginx/certbot/conf:/etc/letsencrypt
-      - ./nginx/certbot/www:/var/www/certbot
+      - ./app/certbot/conf:/etc/letsencrypt
+      - ./app/certbot/www:/var/www/certbot
     ports:
       - "80:80"
       - "443:443"
     depends_on:
       - imca_back
-    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    # command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     
   certbot: # certbot 서비스 추가
     image: certbot/certbot
     container_name: certbot_service
     volumes:
-        - ./nginx/certbot/conf:/etc/letsencrypt
-        - ./nginx/certbot/www:/var/www/certbot
+        - ./app/certbot/conf:/etc/letsencrypt
+        - ./app/certbot/www:/var/www/certbot
     depends_on:
       - nginx
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    # entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 # networks:
 #   local-net:
 #     driver: bridge
