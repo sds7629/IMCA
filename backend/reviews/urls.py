@@ -1,8 +1,6 @@
 from django.urls import path
 from . import views
 
-# from .views import ReviewCreate, BigreviewCreate
-
 urlpatterns = [
     path(
         "category_gather_review/<str:category>/<int:board_id>/",
@@ -13,8 +11,6 @@ urlpatterns = [
         views.UnauthenticatedCategoryReviewAndBigreviewList.as_view(),
     ),
 ]
-##
-##
 # path(
 #     "",
 #     views.Reviews.as_view(),
