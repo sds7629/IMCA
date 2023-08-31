@@ -1,6 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt import authentication
+from rest_framework.permissions import AllowAny
 from . import serializers
 from .models import FestivalModel
 from django.conf import settings
@@ -19,6 +21,7 @@ class SavePublicAPI(APIView):
     공연 목록 불러오기 API
     """
 
+    permission_classes = [AllowAny]
     # def get_time(self):
     #     return timezone.localtime(timezone.now()) - timedelta(weeks=1)
 
