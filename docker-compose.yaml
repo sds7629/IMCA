@@ -26,6 +26,7 @@ services:
       - imcastatic:/app/static  # 스태틱 파일 경로
     ports:
       - "80:80"
+      - "443:443"
     depends_on:
       - imca_back
 #     networks:
