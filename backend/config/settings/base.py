@@ -179,7 +179,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
     "http://localhost:3001",
     "http://127.0.0.1:3001",
-    "https://gleaming-paprenjak-fd3c75.netlify.app",
+    "https://imca.store",
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
@@ -197,7 +197,7 @@ CSRF_USE_SESSIONS = True
 CSRF_TRUSTED_ORIGINS = (
     "https://port-0-imca-3prof2llkuol0db.sel4.cloudtype.app",
     "https://port-0-imca-3prof2llkuok2wj.sel4.cloudtype.app",  # 8월 19일 토요일 방민식 배포
-    "https://gleaming-paprenjak-fd3c75.netlify.app",
+    "https://imca.store",
 )
 
 SESSION_COOKIE_AGE = 43200
