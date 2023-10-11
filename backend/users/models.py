@@ -93,10 +93,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_ad = models.DateTimeField(auto_now=True)
 
-    # @property
-    # def is_staff(self):
-    #     return self.is_admin
-
     objects = UserManager()
 
     USERNAME_FIELD = "login_id"  # 로그인에 사용되는 필드입니당

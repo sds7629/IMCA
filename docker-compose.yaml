@@ -16,8 +16,7 @@ services:
       - ./backend/.env
     ports:
       - "8000:8000"
-    # networks:
-    #   - local-net
+
   nginx:
     container_name: nginx
     build: ./nginx
@@ -29,12 +28,7 @@ services:
       - "443:443"
     depends_on:
       - imca_back
-#     networks:
-#       - local-net
 
-# networks:
-#   local-net:
-#     driver: bridge
 
 volumes:
   imcastatic:

@@ -1,14 +1,15 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework import generics
+from rest_framework.decorators import action
+from rest_framework import generics, viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.exceptions import ParseError, NotFound
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, RefreshToken
 from .models import User
 from . import serializers
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, get_user_model
 from django.contrib.auth.hashers import check_password
 from drf_spectacular.utils import extend_schema, OpenApiParameter, OpenApiExample
 from drf_spectacular.types import OpenApiTypes
@@ -143,6 +144,45 @@ class UserAuth(APIView):
         res.delete_cookie("refresh")
         logout(request)
         return res
+
+
+# class UserAuth(viewsets.ModelViewSet):
+#     queryset = get_user_model()
+#     serializer_class = serializers.UserSerializer
+
+
+#     @action(detail=True, methods=["post"])
+#     def login_user(self, request):
+#         login_id = request.data.get("login_id")
+#         password = request.data.get("password")
+#         queryset = self.get_object()
+#         try:
+#             user = self.queryset().filter(login_id=login_id).first()
+#         except get_user_model().DoesNotExist:
+#             raise NotFound
+#         if not check_password(password, user.password):
+#             raise ParseError({"not"})
+#         if user:
+#             serializer = serializers.UserSerializer(user)
+#             token = TokenObtainPairSerializer.get_token(user)
+#             refresh_token = str(token)
+#             access_token = str(token.access_token)
+#             res = Response(
+#                 {
+#                     "user": serializer.data,
+#                     "message": "로그인 성공",
+#                     "token": {
+#                         "access": access_token,
+#                         "refresh": refresh_token,
+#                     },
+#                 },
+#                 status=status.HTTP_200_OK,
+#             )
+#             res.set_cookie("access", access_token, httponly=True)
+#             res.set_cookie("refresh", refresh_token, httponly=True)
+#             login(request, user)
+#             return res
+#         return Response({"user": user}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserInfo(APIView):
